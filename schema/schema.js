@@ -206,6 +206,52 @@ const RootQuery = new GraphQLObjectType({
   }
 })
 
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addRider: {
+      type: RiderType,
+      args: {
+        name: { type: GraphQLString },
+        country: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        const rider = {
+          id: riders.length + 1,
+          name: args.name,
+          age: args.age
+        }
+
+        riders.push(rider)
+
+        return rider
+      }
+    },
+
+    addEdition: {
+      type: EditionType,
+      args: {
+        year: { type: GraphQLInt },
+        winnerId: { type: GraphQLID },
+        tourId: { type: GraphQLID }
+      },
+      resolve(parent, args) {
+        const edition = {
+          id: editions.length + 1,
+          year: args.year,
+          winnerId: args.winnerId,
+          tourId: args.tourId
+        }
+
+        editions.push(edition)
+
+        return edition
+      }
+    }
+  }
+})
+
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 })
