@@ -121,22 +121,31 @@ const RootQuery = new GraphQLObjectType({
 
     grandTours: {
       type: new GraphQLList(GrandTourType),
-      resolve() {
-        return grandTours
+      args: { quantity: { type: GraphQLInt } },
+      resolve(root, args) {
+        const { quantity } = args
+
+        return quantity ? grandTours.slice(0, quantity) : grandTours
       }
     },
 
     riders: {
       type: new GraphQLList(RiderType),
-      resolve() {
-        return riders
+      args: { quantity: { type: GraphQLInt } },
+      resolve(root, args) {
+        const { quantity } = args
+
+        return quantity ? riders.slice(0, quantity) : riders
       }
     },
 
     editions: {
       type: new GraphQLList(EditionType),
-      resolve() {
-        return editions.reduce((prev, edition) => {
+      args: { quantity: { type: GraphQLInt } },
+      resolve(root, args) {
+        const { quantity } = args
+
+        const editionsList = editions.reduce((prev, edition) => {
           const alreadyAdded = prev.find(val => val.year === edition.year)
 
           if (!alreadyAdded) {
@@ -145,6 +154,8 @@ const RootQuery = new GraphQLObjectType({
 
           return prev
         }, [])
+
+        return quantity ? editionsList.slice(0, quantity) : editionsList
       }
     }
   }
