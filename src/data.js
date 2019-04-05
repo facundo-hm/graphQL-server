@@ -29,14 +29,14 @@ exports.grandTours = [
 ]
 
 exports.riders = [
-  { id: '1', name: 'Chris Froome', country: 'Great Britain' },
-  { id: '2', name: 'Geraint Thomas', country: 'Great Britain' },
-  { id: '3', name: 'Simon Yates', country: 'Great Britain' },
-  { id: '4', name: 'Tom Dumoulin', country: 'Netherlands' },
-  { id: '5', name: 'Vincenzo Nibali', country: 'Italy' },
-  { id: '6', name: 'Nairo Quintana', country: 'Colombia' },
-  { id: '7', name: 'Alberto Contador', country: 'Spain' },
-  { id: '8', name: 'Fabio Aru', country: 'Italy' }
+  { id: '1', name: 'Chris Froome', country: 'Great Britain', status: 1 },
+  { id: '2', name: 'Geraint Thomas', country: 'Great Britain', status: 1 },
+  { id: '3', name: 'Simon Yates', country: 'Great Britain', status: 1 },
+  { id: '4', name: 'Tom Dumoulin', country: 'Netherlands', status: 1 },
+  { id: '5', name: 'Vincenzo Nibali', country: 'Italy', status: 1 },
+  { id: '6', name: 'Nairo Quintana', country: 'Colombia', status: 1 },
+  { id: '7', name: 'Alberto Contador', country: 'Spain', status: 0 },
+  { id: '8', name: 'Fabio Aru', country: 'Italy', status: 1 }
 ]
 
 exports.editions = [

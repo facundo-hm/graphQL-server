@@ -5,7 +5,8 @@ const {
   GraphQLID,
   GraphQLList,
   GraphQLInt,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLEnumType
 } = require('graphql')
 
 const { grandTours, riders, editions } = require('./data')
@@ -54,12 +55,25 @@ const EditionType = new GraphQLObjectType({
   })
 })
 
+const RiderStatus = new GraphQLEnumType({
+  name: 'RiderStatusEnum',
+  values: {
+    RETIRED: {
+      value: 0
+    },
+    ACTIVE: {
+      value: 1
+    }
+  }
+})
+
 const RiderType = new GraphQLObjectType({
   name: 'Rider',
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     country: { type: GraphQLString },
+    status: { type: RiderStatus },
     victories: {
       type: new GraphQLList(VictoryType),
       resolve(parent, args) {
@@ -98,7 +112,7 @@ const RootQuery = new GraphQLObjectType({
     grandTour: {
       type: GrandTourType,
       args: { id: { type: GraphQLID } },
-      resolve(root, args) {
+      resolve(source, args) {
         return grandTours.find(grandTour => grandTour.id === args.id)
       }
     },
@@ -106,7 +120,7 @@ const RootQuery = new GraphQLObjectType({
     rider: {
       type: RiderType,
       args: { id: { type: GraphQLID } },
-      resolve(root, args) {
+      resolve(source, args) {
         return riders.find(rider => rider.id === args.id)
       }
     },
@@ -114,7 +128,7 @@ const RootQuery = new GraphQLObjectType({
     edition: {
       type: EditionType,
       args: { year: { type: new GraphQLNonNull(GraphQLInt) } },
-      resolve(root, args) {
+      resolve(source, args) {
         return editions.find(edition => edition.year === args.year)
       }
     },
@@ -122,7 +136,7 @@ const RootQuery = new GraphQLObjectType({
     grandTours: {
       type: new GraphQLList(GrandTourType),
       args: { quantity: { type: GraphQLInt } },
-      resolve(root, args) {
+      resolve(source, args) {
         const { quantity } = args
 
         return quantity ? grandTours.slice(0, quantity) : grandTours
@@ -132,7 +146,7 @@ const RootQuery = new GraphQLObjectType({
     riders: {
       type: new GraphQLList(RiderType),
       args: { quantity: { type: GraphQLInt } },
-      resolve(root, args) {
+      resolve(source, args) {
         const { quantity } = args
 
         return quantity ? riders.slice(0, quantity) : riders
@@ -142,7 +156,7 @@ const RootQuery = new GraphQLObjectType({
     editions: {
       type: new GraphQLList(EditionType),
       args: { quantity: { type: GraphQLInt } },
-      resolve(root, args) {
+      resolve(source, args) {
         const { quantity } = args
 
         const editionsList = editions.reduce((prev, edition) => {
