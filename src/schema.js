@@ -6,7 +6,8 @@ const {
   GraphQLList,
   GraphQLInt,
   GraphQLNonNull,
-  GraphQLEnumType
+  GraphQLEnumType,
+  GraphQLUnionType
 } = require('graphql')
 
 const { grandTours, riders, editions } = require('./data')
@@ -106,6 +107,20 @@ const TourWinnerType = new GraphQLObjectType({
   })
 })
 
+const SearchByNameType = new GraphQLUnionType({
+  name: 'SearchByNameType',
+  types: [GrandTourType, RiderType],
+  resolveType(data) {
+    if (data.type === 'grandTour') {
+      return GrandTourType
+    }
+
+    if (data.type === 'rider') {
+      return RiderType
+    }
+  }
+})
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -170,6 +185,26 @@ const RootQuery = new GraphQLObjectType({
         }, [])
 
         return quantity ? editionsList.slice(0, quantity) : editionsList
+      }
+    },
+
+    searchByName: {
+      type: new GraphQLList(SearchByNameType),
+      args: {
+        text: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(source, args) {
+        const { text } = args
+
+        const filteredTours = grandTours
+          .filter(gt => gt.name.toLowerCase().indexOf(text) > -1)
+          .map(gt => Object.assign({}, gt, { type: 'grandTour' }))
+
+        const filteredRiders = riders
+          .filter(rider => rider.name.toLowerCase().indexOf(text) > -1)
+          .map(rider => Object.assign({}, rider, { type: 'rider' }))
+
+        return [...filteredTours, ...filteredRiders]
       }
     }
   }
