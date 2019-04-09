@@ -7,13 +7,59 @@ const {
   GraphQLInt,
   GraphQLNonNull,
   GraphQLEnumType,
-  GraphQLUnionType
+  GraphQLUnionType,
+  GraphQLInterfaceType
 } = require('graphql')
 
 const { grandTours, riders, editions } = require('./data')
 
+const SearchByNameType = new GraphQLUnionType({
+  name: 'SearchByName',
+  types() {
+    return [GrandTourType, RiderType]
+  },
+  resolveType(data) {
+    if (data.type === 'grandTour') {
+      return GrandTourType
+    }
+
+    if (data.type === 'rider') {
+      return RiderType
+    }
+  }
+})
+
+const SearchByCountryType = new GraphQLInterfaceType({
+  name: 'SearchByCountry',
+  fields: {
+    searchCountryText: { type: GraphQLString }
+  },
+  resolveType(data) {
+    if (data.region) {
+      return GrandTourType
+    }
+
+    if (data.country) {
+      return RiderType
+    }
+  }
+})
+
+const RiderStatus = new GraphQLEnumType({
+  name: 'RiderStatusEnum',
+  values: {
+    RETIRED: {
+      value: 0
+    },
+    ACTIVE: {
+      value: 1
+    }
+  }
+})
+
 const GrandTourType = new GraphQLObjectType({
   name: 'GrandTour',
+  interfaces: [SearchByCountryType],
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -30,6 +76,12 @@ const GrandTourType = new GraphQLObjectType({
           .map(edition => edition.winnerId)
 
         return riders.filter(rider => tourEditions.includes(rider.id))
+      }
+    },
+    searchCountryText: {
+      type: GraphQLString,
+      resolve(data) {
+        return `(Grand Tour) ${data.region}`
       }
     }
   })
@@ -56,20 +108,9 @@ const EditionType = new GraphQLObjectType({
   })
 })
 
-const RiderStatus = new GraphQLEnumType({
-  name: 'RiderStatusEnum',
-  values: {
-    RETIRED: {
-      value: 0
-    },
-    ACTIVE: {
-      value: 1
-    }
-  }
-})
-
 const RiderType = new GraphQLObjectType({
   name: 'Rider',
+  interfaces: [SearchByCountryType],
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -86,6 +127,12 @@ const RiderType = new GraphQLObjectType({
               grandTour => grandTour.id === edition.tourId
             ).name
           }))
+      }
+    },
+    searchCountryText: {
+      type: GraphQLString,
+      resolve(data) {
+        return `(Rider) ${data.country}`
       }
     }
   })
@@ -105,20 +152,6 @@ const TourWinnerType = new GraphQLObjectType({
     grandTour: { type: GrandTourType },
     winner: { type: RiderType }
   })
-})
-
-const SearchByNameType = new GraphQLUnionType({
-  name: 'SearchByNameType',
-  types: [GrandTourType, RiderType],
-  resolveType(data) {
-    if (data.type === 'grandTour') {
-      return GrandTourType
-    }
-
-    if (data.type === 'rider') {
-      return RiderType
-    }
-  }
 })
 
 const RootQuery = new GraphQLObjectType({
@@ -203,6 +236,26 @@ const RootQuery = new GraphQLObjectType({
         const filteredRiders = riders
           .filter(rider => rider.name.toLowerCase().indexOf(text) > -1)
           .map(rider => Object.assign({}, rider, { type: 'rider' }))
+
+        return [...filteredTours, ...filteredRiders]
+      }
+    },
+
+    searchByCountry: {
+      type: new GraphQLList(SearchByCountryType),
+      args: {
+        text: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(source, args) {
+        const { text } = args
+
+        const filteredTours = grandTours.filter(
+          gt => gt.name.toLowerCase().indexOf(text) > -1
+        )
+
+        const filteredRiders = riders.filter(
+          rider => rider.name.toLowerCase().indexOf(text) > -1
+        )
 
         return [...filteredTours, ...filteredRiders]
       }
