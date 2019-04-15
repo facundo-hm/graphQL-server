@@ -71,11 +71,15 @@ const GrandTourType = new GraphQLObjectType({
     winners: {
       type: new GraphQLList(RiderType),
       resolve(parent, args) {
-        const tourEditions = editions
-          .filter(edition => edition.tourId === parent.id)
-          .map(edition => edition.winnerId)
+        const winnersId = editions.reduce((prev, edition) => {
+          const tourEdition = edition.toursEditions.find(
+            tourEdition => tourEdition.tourId === parent.id
+          )
 
-        return riders.filter(rider => tourEditions.includes(rider.id))
+          return prev.concat(tourEdition.winnerId)
+        }, [])
+
+        return riders.filter(rider => winnersId.includes(rider.id))
       }
     },
     searchCountryText: {
@@ -117,14 +121,18 @@ const RiderType = new GraphQLObjectType({
     victories: {
       type: new GraphQLList(VictoryType),
       resolve(parent, args) {
-        return editions
-          .filter(edition => edition.winnerId === parent.id)
-          .map(edition => ({
-            year: edition.year,
-            grandTour: grandTours.find(
-              grandTour => grandTour.id === edition.tourId
-            ).name
-          }))
+        return editions.reduce((prev, edition) => {
+          const victories = edition.toursEditions
+            .filter(tourEdition => tourEdition.winnerId === parent.id)
+            .map(tourEdition => ({
+              year: edition.year,
+              grandTour: grandTours.find(
+                grandTour => grandTour.id === tourEdition.tourId
+              ).name
+            }))
+
+          return prev.concat(victories)
+        }, [])
       }
     },
     searchCountryText: {
