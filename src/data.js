@@ -40,16 +40,40 @@ exports.riders = [
 ]
 
 exports.editions = [
-  { id: '1', year: 2015, winnerId: '7', tourId: '1' },
-  { id: '2', year: 2015, winnerId: '1', tourId: '2' },
-  { id: '3', year: 2015, winnerId: '8', tourId: '3' },
-  { id: '4', year: 2016, winnerId: '5', tourId: '1' },
-  { id: '5', year: 2016, winnerId: '1', tourId: '2' },
-  { id: '6', year: 2016, winnerId: '6', tourId: '3' },
-  { id: '7', year: 2017, winnerId: '4', tourId: '1' },
-  { id: '8', year: 2017, winnerId: '1', tourId: '2' },
-  { id: '9', year: 2017, winnerId: '1', tourId: '3' },
-  { id: '10', year: 2018, winnerId: '1', tourId: '1' },
-  { id: '11', year: 2018, winnerId: '2', tourId: '2' },
-  { id: '12', year: 2018, winnerId: '3', tourId: '3' }
+  {
+    id: '1',
+    year: 2015,
+    toursEditions: [
+      { winnerId: '7', tourId: '1' },
+      { winnerId: '1', tourId: '2' },
+      { winnerId: '8', tourId: '3' }
+    ]
+  },
+  {
+    id: '2',
+    year: 2016,
+    toursEditions: [
+      { winnerId: '5', tourId: '1' },
+      { winnerId: '1', tourId: '2' },
+      { winnerId: '6', tourId: '3' }
+    ]
+  },
+  {
+    id: '3',
+    year: 2017,
+    toursEditions: [
+      { winnerId: '4', tourId: '1' },
+      { winnerId: '1', tourId: '2' },
+      { winnerId: '1', tourId: '3' }
+    ]
+  },
+  {
+    id: '4',
+    year: 2018,
+    toursEditions: [
+      { winnerId: '1', tourId: '1' },
+      { winnerId: '2', tourId: '2' },
+      { winnerId: '3', tourId: '3' }
+    ]
+  }
 ]

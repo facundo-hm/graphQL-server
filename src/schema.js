@@ -92,17 +92,15 @@ const EditionType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     year: { type: GraphQLInt },
-    grandTours: {
+    toursEditions: {
       type: new GraphQLList(TourWinnerType),
-      resolve: (parent, args) => {
-        return editions
-          .filter(edition => edition.year === parent.year)
-          .map(edition => ({
-            grandTour: grandTours.find(
-              grandTour => grandTour.id === edition.tourId
-            ),
-            winner: riders.find(rider => rider.id === edition.winnerId)
-          }))
+      resolve: parent => {
+        return parent.toursEditions.map(tourEdition => ({
+          grandTour: grandTours.find(
+            grandTour => grandTour.id === tourEdition.tourId
+          ),
+          winner: riders.find(rider => rider.id === tourEdition.winnerId)
+        }))
       }
     }
   })
@@ -207,17 +205,7 @@ const RootQuery = new GraphQLObjectType({
       resolve(source, args) {
         const { quantity } = args
 
-        const editionsList = editions.reduce((prev, edition) => {
-          const alreadyAdded = prev.find(val => val.year === edition.year)
-
-          if (!alreadyAdded) {
-            prev.push(edition)
-          }
-
-          return prev
-        }, [])
-
-        return quantity ? editionsList.slice(0, quantity) : editionsList
+        return quantity ? editions.slice(0, quantity) : editions
       }
     },
 
