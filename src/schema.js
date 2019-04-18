@@ -271,11 +271,29 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args) {
         const rider = {
           id: riders.length + 1,
-          name: args.name,
-          age: args.age
+          name: args.name
         }
 
         riders.push(rider)
+
+        return rider
+      }
+    },
+
+    updateRider: {
+      type: RiderType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLString },
+        country: { type: GraphQLString },
+        status: { type: RiderStatus }
+      },
+      resolve(parent, args) {
+        const rider = riders.find(rider => rider.id === args.id)
+
+        rider.name = args.name
+        rider.country = args.country
+        rider.status = args.status
 
         return rider
       }
