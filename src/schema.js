@@ -13,6 +13,8 @@ const {
 
 const { grandTours, riders, editions } = require('./data')
 
+const ENTITIES = ['grandTour', 'rider']
+
 const SearchByNameType = new GraphQLUnionType({
   name: 'SearchByName',
   types() {
@@ -240,20 +242,23 @@ const RootQuery = new GraphQLObjectType({
     searchByCountry: {
       type: new GraphQLList(SearchByCountryType),
       args: {
-        text: { type: new GraphQLNonNull(GraphQLString) }
+        text: { type: new GraphQLNonNull(GraphQLString) },
+        entity: { type: new GraphQLNonNull(GraphQLString) }
       },
       resolve(source, args) {
-        const { text } = args
+        const { text, entity } = args
 
-        const filteredTours = grandTours.filter(
-          gt => gt.name.toLowerCase().indexOf(text) > -1
+        if (!entity || !ENTITIES.includes(entity)) {
+          return []
+        }
+
+        const entityValues = entity === 'grandTour' ? grandTours : riders
+        const entityProp = entity === 'grandTour' ? 'region' : 'country'
+
+        return entityValues.filter(
+          entityValue =>
+            entityValue[entityProp].toLowerCase().indexOf(text) > -1
         )
-
-        const filteredRiders = riders.filter(
-          rider => rider.name.toLowerCase().indexOf(text) > -1
-        )
-
-        return [...filteredTours, ...filteredRiders]
       }
     }
   }
