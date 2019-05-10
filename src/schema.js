@@ -270,13 +270,16 @@ const Mutation = new GraphQLObjectType({
     addRider: {
       type: RiderType,
       args: {
-        name: { type: GraphQLString },
+        name: { type: new GraphQLNonNull(GraphQLString) },
         country: { type: GraphQLString }
       },
       resolve(parent, args) {
+        const newId = riders.length + 1
+
         const rider = {
-          id: riders.length + 1,
-          name: args.name
+          id: newId.toString(),
+          name: args.name,
+          country: args.country
         }
 
         riders.push(rider)
@@ -296,9 +299,9 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args) {
         const rider = riders.find(rider => rider.id === args.id)
 
-        rider.name = args.name
-        rider.country = args.country
-        rider.status = args.status
+        rider.name = args.name || rider.name
+        rider.country = args.country || rider.country
+        rider.status = isFinite(args.status) ? args.status : rider.status
 
         return rider
       }
